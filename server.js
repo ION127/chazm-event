@@ -69,6 +69,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── 공개 API ──────────────────────────────────────────
 
 app.get('/api/hints', (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const db = loadDB();
   const result = Object.entries(db.published).map(([id, val]) => ({
     id:         Number(id),
