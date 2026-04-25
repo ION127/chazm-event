@@ -5,7 +5,7 @@ const crypto  = require('crypto');
 const fs      = require('fs');
 const path    = require('path');
 const multer  = require('multer');
-
+const test = "test";
 const app = express();
 const PORT         = process.env.PORT || 3000;
 const DB_FILE      = path.join(__dirname, 'hints.json');
