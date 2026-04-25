@@ -1,0 +1,314 @@
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.sse-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  vertical-align: middle;
+}
+.sse-status.ok  { background: #dcfce7; color: #16a34a; }
+.sse-status.err { background: #fee2e2; color: #dc2626; }
+.sse-status.new { background: #fef9c3; color: #d97706; animation: pulse .6s ease 3; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.back-btn {
+  font-size: 0.85rem;
+  color: #4a7cff;
+  text-decoration: none;
+}
+.back-btn:hover { text-decoration: underline; }
+
+section { margin-bottom: 32px; }
+section h2 { font-size: 1rem; margin-bottom: 14px; color: #333; }
+
+hr { border: none; border-top: 1px solid #dde1e7; margin: 28px 0; }
+
+.badge-blue {
+  background: #2563eb;
+}
+
+/* ── 문의 카드 ── */
+.inquiry-card {
+  background: #fff;
+  border: 1px solid #dde1e7;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.inquiry-card.unread { border-left: 3px solid #2563eb; }
+.inquiry-card.read   { opacity: .75; }
+
+.inquiry-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.inquiry-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  flex: 1;
+}
+.new-dot {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #2563eb;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+.inquiry-date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+.inquiry-body {
+  font-size: 0.88rem;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+.inquiry-actions {
+  display: flex;
+  gap: 8px;
+}
+.read-btn {
+  padding: 5px 12px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.read-btn:hover { background: #1d4ed8; }
+.del-btn {
+  padding: 5px 12px;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.del-btn:hover { background: #fef2f2; border-color: #dc2626; color: #dc2626; }
+
+.badge {
+  display: inline-block;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 1px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* 대기 카드 */
+.pending-card {
+  background: #fff;
+  border: 1px solid #dde1e7;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.pending-meta {
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.pending-card .num-badge {
+  background: #1a1a2e;
+  color: #fff;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.pending-card .edit-area {
+  flex: 1;
+  min-width: 200px;
+}
+
+.hint-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.hint-field-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #888;
+  gap: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.pending-card input[type="text"] {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  background: #fafafa;
+}
+.pending-card input[type="text"]:focus {
+  border-color: #4a7cff;
+  background: #fff;
+}
+
+.edit-content-label { flex: 1; min-width: 160px; }
+
+.pending-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #dde1e7;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: center;
+  transition: transform .15s;
+}
+.pending-img:hover { transform: scale(1.05); }
+
+.no-img {
+  font-size: 0.75rem;
+  color: #c0c4cc;
+  align-self: center;
+  width: 90px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* 이미지 확대 오버레이 */
+.img-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.img-overlay.show { display: flex; }
+.img-overlay img { max-width: 90vw; max-height: 90vh; border-radius: 10px; }
+
+.pending-card .actions {
+  display: flex;
+  gap: 8px;
+  align-self: center;
+}
+
+.approve-btn {
+  padding: 7px 16px;
+  background: #2a9d2a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+.approve-btn:hover { background: #1e7a1e; }
+
+.reject-btn {
+  padding: 7px 14px;
+  background: #e53e3e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+.reject-btn:hover { background: #c53030; }
+
+.empty-msg { color: #aaa; font-size: 0.9rem; }
+
+/* 직접 수정 폼 */
+.edit-form {
+  background: #fff;
+  border: 1px solid #dde1e7;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+#editMsg { font-size: 0.85rem; min-width: 100%; height: 1.2em; }
+#editMsg.ok  { color: #2a9d2a; }
+#editMsg.err { color: #d9361e; }
+
+/* ── 반응형 ── */
+@media (max-width: 600px) {
+  /* 헤더: 세로 배치 */
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* 대기 카드: 세로 배치 */
+  .pending-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pending-card .num-badge { align-self: flex-start; }
+  .pending-card .edit-area { min-width: 0; }
+  .pending-img {
+    width: 100%;
+    height: 180px;
+    align-self: stretch;
+  }
+  .no-img { width: 100%; }
+  .pending-card .actions {
+    width: 100%;
+  }
+  .approve-btn, .reject-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  /* 수정 폼: 세로 배치 */
+  .edit-form { flex-direction: column; }
+  .edit-form label { width: 100%; }
+  .edit-form select,
+  .edit-form input[type="text"],
+  .edit-form button { width: 100%; }
+
+  /* 테이블: 마지막 수정 열 숨김 */
+  .col-date { display: none; }
+}

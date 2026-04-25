@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 로그인</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: #fff;
+      border: 1px solid #dde1e7;
+      border-radius: 10px;
+      padding: 36px 32px;
+      width: 320px;
+      text-align: center;
+    }
+    h1 { font-size: 1.1rem; color: #1a1a2e; margin-bottom: 24px; }
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    input[type="password"]:focus { border-color: #4a7cff; }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    button:hover { background: #2e2e50; }
+    #errMsg { color: #d9361e; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>관리자 로그인</h1>
+    <input type="password" id="pw" placeholder="비밀번호 입력" autofocus>
+    <button id="loginBtn">로그인</button>
+    <p id="errMsg"></p>
+  </div>
+  <script>
+    async function login() {
+      const pw = document.getElementById('pw').value;
+      if (!pw) return;
+      const res  = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        localStorage.setItem('adminToken', data.token);
+        location.href = '/admin.html';
+      } else {
+        document.getElementById('errMsg').textContent = data.error || '오류 발생';
+        document.getElementById('pw').value = '';
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.getElementById('pw').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+  </script>
+</body>
+</html>

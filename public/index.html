@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>차즘 이벤트 공유</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>차즘 이벤트 공유</h1>
+    <p class="sub-title">힌트 제출</p>
+
+    <div class="guide-box">
+      <div class="guide-text">
+        <p>힌트 번호는 아래 이미지와 같이 힌트를 클릭했을 때 <strong>No.24</strong>와 같이 확인할 수 있습니다.</p>
+      </div>
+      <img src="hint-guide.png" alt="힌트 번호 확인 방법" class="guide-img" id="guideImg">
+    </div>
+
+    <div class="form-box">
+
+      <!-- 입력 행 -->
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">힌트 번호</span>
+          <input type="number" id="hintNumber" min="1" max="50" placeholder="1~50">
+        </div>
+        <div class="field">
+          <span class="field-label">힌트 종류</span>
+          <select id="hintType">
+            <option value="day">X일차 힌트</option>
+            <option value="invite">친구 초대 힌트</option>
+            <option value="quote">견적 분석 힌트</option>
+          </select>
+        </div>
+        <div class="field field-grow">
+          <span class="field-label">힌트 내용</span>
+          <input type="text" id="hintContent" placeholder="힌트 내용을 입력하세요" maxlength="300">
+        </div>
+        <button id="sendBtn">힌트 보내기</button>
+      </div>
+
+      <!-- 이미지 업로드 -->
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="hintImage" accept="image/*">
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.8">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21,15 16,10 5,21"/>
+          </svg>
+          <span>캡쳐 이미지 첨부 <em>(선택)</em></span>
+        </div>
+        <div class="upload-preview" id="uploadPreview" style="display:none">
+          <img id="previewImg" src="" alt="미리보기">
+          <div class="preview-info">
+            <span id="previewName"></span>
+            <button type="button" id="clearImage">✕ 제거</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="image-hint">📌 캡쳐 이미지를 같이 제출해주시면 신빙성이 올라갑니다</p>
+      <p id="statusMsg"></p>
+    </div>
+
+    <div class="search-row">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="힌트 내용 검색...">
+        <button id="searchClear" style="display:none">✕</button>
+      </div>
+      <span id="searchResult"></span>
+    </div>
+
+    <h2 class="section-title">게시된 힌트 목록</h2>
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th><span class="th-full">X일차 힌트</span><span class="th-short">X일차</span></th>
+          <th><span class="th-full">친구 초대 힌트</span><span class="th-short">초대</span></th>
+          <th><span class="th-full">견적 분석 힌트</span><span class="th-short">견적</span></th>
+          <th class="col-date">마지막 수정</th>
+        </tr>
+      </thead>
+      <tbody id="hintTable">
+        <tr><td colspan="5">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="site-footer">
+    <span class="footer-brand">개발: ION</span>
+    <div class="footer-links">
+      <a href="mailto:ion011227@gmail.com" class="footer-link" title="이메일">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+        </svg>
+        ion011227@gmail.com
+      </a>
+      <a href="https://github.com/ION127" class="footer-link" target="_blank" rel="noopener" title="GitHub">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+        </svg>
+        github.com/ION127
+      </a>
+    </div>
+  </footer>
+
+  <!-- 문의 플로팅 버튼 -->
+  <button id="inquiryBtn" class="inquiry-float-btn">문의하기</button>
+
+  <!-- 문의 모달 -->
+  <div class="modal-overlay" id="inquiryModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>문의하기</h3>
+        <button class="modal-close" id="inquiryClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field-label">제목</label>
+        <input type="text" id="inquiryTitle" placeholder="문의 제목을 입력하세요" maxlength="100">
+        <label class="field-label" style="margin-top:14px;">내용</label>
+        <textarea id="inquiryContent" placeholder="문의 내용을 입력하세요" maxlength="1000" rows="5"></textarea>
+        <p class="inquiry-notice">📌 문의 내용과 함께 <strong>답장을 받을 이메일</strong>을 작성해주세요.<br>이메일을 작성해주시지 않으면 답변을 드리기 어렵습니다.</p>
+        <p id="inquiryMsg"></p>
+        <button id="inquirySubmit">제출하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="img-overlay" id="imgOverlay">
+    <img src="hint-guide.png" alt="힌트 번호 확인 방법">
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

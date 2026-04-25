@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 페이지</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="container">
+    <div class="admin-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <h1>관리자 페이지</h1>
+        <span id="sseStatus" class="sse-status">연결 중...</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <a href="/" class="back-btn">← 메인으로</a>
+        <button id="logoutBtn" style="padding:6px 14px;background:#e53e3e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">로그아웃</button>
+      </div>
+    </div>
+
+    <!-- 문의 목록 -->
+    <section>
+      <h2>문의 <span id="inquiryCount" class="badge badge-blue">0</span></h2>
+      <div id="inquiryList">
+        <p class="empty-msg">문의가 없습니다.</p>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 대기 중인 제출 -->
+    <section>
+      <h2>대기 중인 제출 <span id="pendingCount" class="badge">0</span></h2>
+      <div id="pendingList">
+        <p class="empty-msg">대기 중인 힌트가 없습니다.</p>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 게시된 힌트 직접 수정 -->
+    <section>
+      <h2>게시된 힌트 직접 수정</h2>
+      <div class="edit-form">
+        <label>
+          번호
+          <select id="editNumber"></select>
+        </label>
+        <label>
+          종류
+          <select id="editType">
+            <option value="day">X일차 힌트</option>
+            <option value="invite">친구 초대 힌트</option>
+            <option value="quote">견적 분석 힌트</option>
+          </select>
+        </label>
+        <label class="edit-content-label">
+          내용
+          <input type="text" id="editContent" placeholder="수정할 내용 입력" maxlength="300">
+        </label>
+        <button id="editBtn">수정 저장</button>
+        <p id="editMsg"></p>
+      </div>
+
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>X일차 힌트</th>
+            <th>친구 초대 힌트</th>
+            <th>견적 분석 힌트</th>
+            <th class="col-date">마지막 수정</th>
+          </tr>
+        </thead>
+        <tbody id="publishedTable">
+          <tr><td colspan="5">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="site-footer">
+    <span class="footer-brand">개발: ION</span>
+    <div class="footer-links">
+      <a href="mailto:ion011227@gmail.com" class="footer-link" title="이메일">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+        </svg>
+        ion011227@gmail.com
+      </a>
+      <a href="https://github.com/ION127" class="footer-link" target="_blank" rel="noopener" title="GitHub">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+        </svg>
+        github.com/ION127
+      </a>
+    </div>
+  </footer>
+
+  <div class="img-overlay" id="imgOverlay">
+    <img id="overlayImg" src="" alt="">
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>
