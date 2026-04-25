@@ -44,8 +44,11 @@ async function loadPending() {
       <div class="num-badge">${p.number}번</div>
       <div class="edit-area">
         <div class="hint-fields">
-          <label class="hint-field-label">X일차 힌트
+          <label class="hint-field-label">1일차 힌트
             <input type="text" name="day"    value="${escHtml(p.day    || '')}" placeholder="—" maxlength="300">
+          </label>
+          <label class="hint-field-label">2일차 힌트
+            <input type="text" name="day2"   value="${escHtml(p.day2   || '')}" placeholder="—" maxlength="300">
           </label>
           <label class="hint-field-label">친구 초대 힌트
             <input type="text" name="invite" value="${escHtml(p.invite || '')}" placeholder="—" maxlength="300">
@@ -68,22 +71,23 @@ async function loadPending() {
     const uid = Number(card.dataset.uid);
     card.querySelector('.approve-btn').addEventListener('click', () => {
       const day    = card.querySelector('input[name="day"]').value;
+      const day2   = card.querySelector('input[name="day2"]').value;
       const invite = card.querySelector('input[name="invite"]').value;
       const quote  = card.querySelector('input[name="quote"]').value;
-      approve(uid, day, invite, quote);
+      approve(uid, day, day2, invite, quote);
     });
     card.querySelector('.reject-btn').addEventListener('click', () => reject(uid));
   });
 }
 
-async function approve(uid, day, invite, quote) {
-  if (!day.trim() && !invite.trim() && !quote.trim()) {
+async function approve(uid, day, day2, invite, quote) {
+  if (!day.trim() && !day2.trim() && !invite.trim() && !quote.trim()) {
     alert('힌트 내용을 하나 이상 입력해주세요.'); return;
   }
   await authFetch('/api/admin/approve', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uid, day, invite, quote })
+    body: JSON.stringify({ uid, day, day2, invite, quote })
   });
   loadPending();
   loadPublished();
@@ -104,6 +108,7 @@ async function loadPublished() {
     <tr>
       <td>${h.id}</td>
       <td class="type-day    ${h.day    ? '' : 'empty'}">${h.day    || '—'}</td>
+      <td class="type-day2   ${h.day2   ? '' : 'empty'}">${h.day2   || '—'}</td>
       <td class="type-invite ${h.invite ? '' : 'empty'}">${h.invite || '—'}</td>
       <td class="type-quote  ${h.quote  ? '' : 'empty'}">${h.quote  || '—'}</td>
       <td class="col-date">${h.updated_at || ''}</td>

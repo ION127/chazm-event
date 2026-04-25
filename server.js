@@ -36,7 +36,7 @@ const upload = multer({
 });
 
 function emptyHint() {
-  return { day: '', invite: '', quote: '', updated_at: '' };
+  return { day: '', day2: '', invite: '', quote: '', updated_at: '' };
 }
 
 function loadDB() {
@@ -73,6 +73,7 @@ app.get('/api/hints', (req, res) => {
   const result = Object.entries(db.published).map(([id, val]) => ({
     id:         Number(id),
     day:        val.day    || '',
+    day2:       val.day2   || '',
     invite:     val.invite || '',
     quote:      val.quote  || '',
     updated_at: val.updated_at || ''
@@ -83,7 +84,7 @@ app.get('/api/hints', (req, res) => {
 // 힌트 제출
 app.post('/api/hints', upload.single('image'), (req, res) => {
   const { number, type, content } = req.body;
-  const validTypes = ['day', 'invite', 'quote'];
+  const validTypes = ['day', 'day2', 'invite', 'quote'];
 
   if (!number || number < 1 || number > 50) {
     if (req.file) fs.unlinkSync(req.file.path);
@@ -94,7 +95,7 @@ app.post('/api/hints', upload.single('image'), (req, res) => {
     return res.status(400).json({ error: '힌트 종류와 내용을 입력해주세요.' });
   }
 
-  const item = { uid: Date.now(), number: Number(number), day: '', invite: '', quote: '',
+  const item = { uid: Date.now(), number: Number(number), day: '', day2: '', invite: '', quote: '',
                  image: req.file ? `/uploads/${req.file.filename}` : null,
                  submitted_at: new Date().toLocaleString('ko-KR') };
   item[type] = String(content).trim();
@@ -154,7 +155,7 @@ function mergeField(existing, incoming) {
 }
 
 app.post('/api/admin/approve', requireAdmin, (req, res) => {
-  const { uid, day, invite, quote } = req.body;
+  const { uid, day, day2, invite, quote } = req.body;
   const db  = loadDB();
   const idx = db.pending.findIndex(p => p.uid === uid);
   if (idx === -1) return res.status(404).json({ error: '항목 없음' });
@@ -164,6 +165,7 @@ app.post('/api/admin/approve', requireAdmin, (req, res) => {
 
   db.published[item.number] = {
     day:        mergeField(existing.day,    String(day    ?? item.day    ?? '')),
+    day2:       mergeField(existing.day2,   String(day2   ?? item.day2   ?? '')),
     invite:     mergeField(existing.invite, String(invite ?? item.invite ?? '')),
     quote:      mergeField(existing.quote,  String(quote  ?? item.quote  ?? '')),
     updated_at: new Date().toLocaleString('ko-KR')
@@ -193,7 +195,7 @@ app.put('/api/admin/published/:id', requireAdmin, (req, res) => {
   const id   = Number(req.params.id);
   const { type, content } = req.body;
   if (id < 1 || id > 50) return res.status(400).json({ error: '잘못된 번호' });
-  if (!['day','invite','quote'].includes(type)) return res.status(400).json({ error: '잘못된 종류' });
+  if (!['day','day2','invite','quote'].includes(type)) return res.status(400).json({ error: '잘못된 종류' });
   const db = loadDB();
   db.published[id][type]      = String(content ?? '').trim();
   db.published[id].updated_at = new Date().toLocaleString('ko-KR');

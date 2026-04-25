@@ -66,13 +66,14 @@ function cell(text, type, kw) {
 
 function renderTable(hints, keyword = '') {
   if (hints.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa;">검색 결과가 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;">검색 결과가 없습니다.</td></tr>';
     return;
   }
   tbody.innerHTML = hints.map(h => `
     <tr>
       <td>${h.id}</td>
       ${cell(h.day,    'day',    keyword)}
+      ${cell(h.day2,   'day2',   keyword)}
       ${cell(h.invite, 'invite', keyword)}
       ${cell(h.quote,  'quote',  keyword)}
       <td class="col-date">${h.updated_at || ''}</td>
@@ -91,6 +92,7 @@ function applySearch() {
   const lower = kw.toLowerCase();
   const filtered = allHints.filter(h =>
     h.day?.toLowerCase().includes(lower) ||
+    h.day2?.toLowerCase().includes(lower) ||
     h.invite?.toLowerCase().includes(lower) ||
     h.quote?.toLowerCase().includes(lower)
   );
@@ -107,7 +109,7 @@ async function loadHints() {
     allHints  = await res.json();
     applySearch();
   } catch {
-    tbody.innerHTML = '<tr><td colspan="5">불러오기 실패</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6">불러오기 실패</td></tr>';
   }
 }
 

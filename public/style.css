@@ -398,6 +398,7 @@ td { word-break: keep-all; overflow-wrap: break-word; }
 
 /* 힌트 종류별 배경색 */
 td.type-day,
+td.type-day2,
 td.type-invite,
 td.type-quote {
   text-align: center;
@@ -408,11 +409,13 @@ td.type-quote {
   letter-spacing: -0.2px;
 }
 td.type-day    { background: #ADADAD !important; color: #1a1a2e; }
+td.type-day2   { background: #d9b8ff !important; color: #1a1a2e; }
 td.type-invite { background: #FDE500 !important; color: #1a1a2e; }
 td.type-quote  { background: #FFC470 !important; color: #1a1a2e; }
 
 /* 빈 칸은 투명도로 처리 (배경 위에서도 잘 보이게) */
 td.type-day.empty,
+td.type-day2.empty,
 td.type-invite.empty,
 td.type-quote.empty { color: rgba(0,0,0,0.25); font-weight: 400; }
 
@@ -620,7 +623,7 @@ td.type-quote.empty { color: rgba(0,0,0,0.25); font-weight: 400; }
   th { white-space: normal; word-break: keep-all; line-height: 1.3; padding: 7px 5px; }
   td { padding: 7px 5px; word-break: keep-all; }
   td:first-child { width: 28px; font-size: 0.8rem; padding: 7px 4px; text-align: center; }
-  td.type-day, td.type-invite, td.type-quote { font-size: 0.78rem; }
+  td.type-day, td.type-day2, td.type-invite, td.type-quote { font-size: 0.78rem; }
 
   /* 검색바 결과 텍스트 줄바꿈 방지 */
   .search-row { flex-wrap: wrap; gap: 8px; }
