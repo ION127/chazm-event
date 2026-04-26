@@ -22,6 +22,20 @@
       </div>
     </div>
 
+    <!-- 컬럼 표시 설정 -->
+    <section>
+      <h2>힌트 컬럼 표시 설정 <small style="font-size:0.78rem;color:#888;font-weight:400;">(사용자 페이지에서 보여줄 컬럼을 선택하세요)</small></h2>
+      <div id="columnToggles" class="column-toggles">
+        <!-- JS로 렌더 -->
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:10px;">
+        <button id="saveSettingsBtn" class="save-settings-btn">설정 저장</button>
+        <span id="settingsMsg"></span>
+      </div>
+    </section>
+
+    <hr>
+
     <!-- 문의 목록 -->
     <section>
       <h2>문의 <span id="inquiryCount" class="badge badge-blue">0</span></h2>
@@ -55,6 +69,11 @@
           <select id="editType">
             <option value="day">1일차 힌트</option>
             <option value="day2">2일차 힌트</option>
+            <option value="day3">3일차 힌트</option>
+            <option value="day4">4일차 힌트</option>
+            <option value="day5">5일차 힌트</option>
+            <option value="day6">6일차 힌트</option>
+            <option value="day7">7일차 힌트</option>
             <option value="invite">친구 초대 힌트</option>
             <option value="quote">견적 분석 힌트</option>
           </select>
@@ -72,15 +91,20 @@
         <thead>
           <tr>
             <th>번호</th>
-            <th>1일차 힌트</th>
-            <th>2일차 힌트</th>
-            <th>친구 초대 힌트</th>
-            <th>견적 분석 힌트</th>
-            <th class="col-date">마지막 수정</th>
+            <th>1일차</th>
+            <th>2일차</th>
+            <th>3일차</th>
+            <th>4일차</th>
+            <th>5일차</th>
+            <th>6일차</th>
+            <th>7일차</th>
+            <th>초대</th>
+            <th>견적</th>
+            <th class="col-date">수정일</th>
           </tr>
         </thead>
         <tbody id="publishedTable">
-          <tr><td colspan="6">불러오는 중...</td></tr>
+          <tr><td colspan="11">불러오는 중...</td></tr>
         </tbody>
       </table>
       </div>

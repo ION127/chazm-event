@@ -1,14 +1,25 @@
+const COL_DEFS = [
+  { key: 'day',    label: '1일차 힌트', short: '1일차' },
+  { key: 'day2',   label: '2일차 힌트', short: '2일차' },
+  { key: 'day3',   label: '3일차 힌트', short: '3일차' },
+  { key: 'day4',   label: '4일차 힌트', short: '4일차' },
+  { key: 'day5',   label: '5일차 힌트', short: '5일차' },
+  { key: 'day6',   label: '6일차 힌트', short: '6일차' },
+  { key: 'day7',   label: '7일차 힌트', short: '7일차' },
+  { key: 'invite', label: '친구 초대 힌트', short: '초대' },
+  { key: 'quote',  label: '견적 분석 힌트', short: '견적' },
+];
+
 const searchInput  = document.getElementById('searchInput');
 const searchClear  = document.getElementById('searchClear');
 const searchResult = document.getElementById('searchResult');
-let allHints = [];
-
 const numberInput  = document.getElementById('hintNumber');
 const typeSelect   = document.getElementById('hintType');
 const contentInput = document.getElementById('hintContent');
 const sendBtn      = document.getElementById('sendBtn');
 const statusMsg    = document.getElementById('statusMsg');
 const tbody        = document.getElementById('hintTable');
+const thead        = document.getElementById('hintThead');
 const uploadZone   = document.getElementById('uploadZone');
 const imageInput   = document.getElementById('hintImage');
 const placeholder  = document.getElementById('uploadPlaceholder');
@@ -17,7 +28,11 @@ const previewImg   = document.getElementById('previewImg');
 const previewName  = document.getElementById('previewName');
 const clearBtn     = document.getElementById('clearImage');
 
-// 이미지 선택
+let allHints       = [];
+let visibleColumns = [];
+
+// ── 이미지 업로드 ─────────────────────────────────────
+
 imageInput.addEventListener('change', () => {
   const file = imageInput.files[0];
   if (!file) return;
@@ -27,7 +42,6 @@ imageInput.addEventListener('change', () => {
   preview.style.display = 'flex';
 });
 
-// 드래그 앤 드롭
 uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
 uploadZone.addEventListener('drop', e => {
@@ -51,31 +65,61 @@ function clearImage() {
   placeholder.style.display = 'flex';
 }
 
+// ── 테이블 헤더 빌드 ─────────────────────────────────
+
+function buildTableHeader() {
+  if (!thead) return;
+  thead.innerHTML = `<tr>
+    <th>번호</th>
+    ${visibleColumns.map(key => {
+      const def = COL_DEFS.find(d => d.key === key);
+      if (!def) return '';
+      return `<th><span class="th-full">${def.label}</span><span class="th-short">${def.short}</span></th>`;
+    }).join('')}
+    <th class="col-date">마지막 수정</th>
+  </tr>`;
+}
+
+// ── 힌트 타입 선택 업데이트 ──────────────────────────
+
+function updateTypeSelect() {
+  const prev = typeSelect.value;
+  typeSelect.innerHTML = visibleColumns.map(key => {
+    const def = COL_DEFS.find(d => d.key === key);
+    if (!def) return '';
+    return `<option value="${key}">${def.label}</option>`;
+  }).join('');
+  if (visibleColumns.includes(prev)) typeSelect.value = prev;
+}
+
 // ── 테이블 렌더 ───────────────────────────────────────
 
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function cell(text, type, kw) {
-  const re = kw ? new RegExp(`(${escapeRegex(kw)})`, 'gi') : null;
-  if (!text) return `<td class="type-${type} empty">—</td>`;
-  const html = re ? text.replace(re, '<mark class="highlight">$1</mark>') : text;
-  return `<td class="type-${type}">${html}</td>`;
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function cell(text, imgSrc, type, kw) {
+  const isEmpty = !text && !imgSrc;
+  const re = (text && kw) ? new RegExp(`(${escapeRegex(kw)})`, 'gi') : null;
+  const content = !text ? (imgSrc ? '' : '—') : (re ? escHtml(text).replace(re, '<mark class="highlight">$1</mark>') : escHtml(text));
+  const imgHtml = imgSrc ? `<img class="hint-thumb" src="${escHtml(imgSrc)}" alt="이미지">` : '';
+  return `<td class="type-${type}${isEmpty ? ' empty' : ''}">${content}${imgHtml}</td>`;
 }
 
 function renderTable(hints, keyword = '') {
+  const colspan = visibleColumns.length + 2;
   if (hints.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;">검색 결과가 없습니다.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;color:#aaa;">검색 결과가 없습니다.</td></tr>`;
     return;
   }
   tbody.innerHTML = hints.map(h => `
     <tr>
       <td>${h.id}</td>
-      ${cell(h.day,    'day',    keyword)}
-      ${cell(h.day2,   'day2',   keyword)}
-      ${cell(h.invite, 'invite', keyword)}
-      ${cell(h.quote,  'quote',  keyword)}
+      ${visibleColumns.map(key => cell(h[key] || '', h[`${key}_image`] || null, key, keyword)).join('')}
       <td class="col-date">${h.updated_at || ''}</td>
     </tr>
   `).join('');
@@ -91,10 +135,7 @@ function applySearch() {
   }
   const lower = kw.toLowerCase();
   const filtered = allHints.filter(h =>
-    h.day?.toLowerCase().includes(lower) ||
-    h.day2?.toLowerCase().includes(lower) ||
-    h.invite?.toLowerCase().includes(lower) ||
-    h.quote?.toLowerCase().includes(lower)
+    visibleColumns.some(key => (h[key] || '').toLowerCase().includes(lower))
   );
   searchResult.textContent = `${filtered.length}건 일치`;
   renderTable(filtered, kw);
@@ -105,11 +146,15 @@ searchClear.addEventListener('click', () => { searchInput.value = ''; applySearc
 
 async function loadHints() {
   try {
-    const res = await fetch('/api/hints');
-    allHints  = await res.json();
+    const res  = await fetch('/api/hints');
+    const data = await res.json();
+    allHints       = data.hints;
+    visibleColumns = data.visibleColumns;
+    updateTypeSelect();
+    buildTableHeader();
     applySearch();
   } catch {
-    tbody.innerHTML = '<tr><td colspan="6">불러오기 실패</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="6">불러오기 실패</td></tr>`;
   }
 }
 
@@ -123,7 +168,9 @@ sendBtn.addEventListener('click', async () => {
   if (!number || number < 1 || number > 50 || !Number.isInteger(number)) {
     showMsg('힌트 번호를 1~50 사이의 정수로 입력해주세요.', false); return;
   }
-  if (!content) { showMsg('힌트 내용을 입력해주세요.', false); return; }
+  if (!content && !imageInput.files[0]) {
+    showMsg('힌트 내용 또는 이미지 중 하나는 입력해주세요.', false); return;
+  }
 
   const formData = new FormData();
   formData.append('number', number);
@@ -157,12 +204,38 @@ function showMsg(text, ok) {
   setTimeout(() => { statusMsg.textContent = ''; statusMsg.className = ''; }, 3000);
 }
 
-// 가이드 이미지 클릭 확대
-const overlay = document.getElementById('imgOverlay');
-function openOverlay() { overlay.classList.add('show'); history.pushState({ overlay: true }, ''); }
+// ── 이미지 오버레이 (모바일 back 버튼 지원) ──────────
+
+const overlay    = document.getElementById('imgOverlay');
+const overlayImg = document.getElementById('overlayImg');
+
+function openOverlay(src, alt) {
+  overlayImg.src = src;
+  overlayImg.alt = alt || '';
+  overlay.classList.add('show');
+  history.pushState({ overlay: true }, '');
+}
 function closeOverlay() { overlay.classList.remove('show'); }
-document.getElementById('guideImg')?.addEventListener('click', openOverlay);
-overlay?.addEventListener('click', closeOverlay);
+
+// 가이드 이미지 클릭
+document.getElementById('guideImg')?.addEventListener('click', () =>
+  openOverlay('hint-guide.png', '힌트 번호 확인 방법')
+);
+
+// 오버레이 클릭으로 닫기 (pushState 정리)
+overlay?.addEventListener('click', () => { closeOverlay(); history.back(); });
+
+// 힌트 테이블 썸네일 클릭 (이벤트 위임)
+document.querySelector('.table-wrap')?.addEventListener('click', e => {
+  const thumb = e.target.closest('.hint-thumb');
+  if (thumb) openOverlay(thumb.src, '힌트 이미지');
+});
+
+// 뒤로가기 버튼 처리 (모바일 포함)
+window.addEventListener('popstate', () => {
+  if (overlay.classList.contains('show')) closeOverlay();
+  if (inquiryModal.classList.contains('show')) closeInquiry();
+});
 
 // ── 문의 모달 ─────────────────────────────────────────
 
@@ -180,11 +253,6 @@ function closeInquiry() { inquiryModal.classList.remove('show'); }
 inquiryBtn.addEventListener('click', openInquiry);
 inquiryClose.addEventListener('click', () => { closeInquiry(); history.back(); });
 inquiryModal.addEventListener('click', e => { if (e.target === inquiryModal) { closeInquiry(); history.back(); } });
-
-window.addEventListener('popstate', e => {
-  if (inquiryModal.classList.contains('show')) closeInquiry();
-  if (overlay.classList.contains('show')) closeOverlay();
-});
 
 inquirySubmit.addEventListener('click', async () => {
   const title   = inquiryTitle.value.trim();

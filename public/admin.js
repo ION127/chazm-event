@@ -10,6 +10,18 @@ const editContent  = document.getElementById('editContent');
 const editBtn      = document.getElementById('editBtn');
 const editMsg      = document.getElementById('editMsg');
 
+const COL_DEFS = [
+  { key: 'day',    label: '1일차 힌트' },
+  { key: 'day2',   label: '2일차 힌트' },
+  { key: 'day3',   label: '3일차 힌트' },
+  { key: 'day4',   label: '4일차 힌트' },
+  { key: 'day5',   label: '5일차 힌트' },
+  { key: 'day6',   label: '6일차 힌트' },
+  { key: 'day7',   label: '7일차 힌트' },
+  { key: 'invite', label: '친구 초대 힌트' },
+  { key: 'quote',  label: '견적 분석 힌트' },
+];
+
 for (let i = 1; i <= 50; i++) {
   const opt = document.createElement('option');
   opt.value = i; opt.textContent = i;
@@ -26,6 +38,49 @@ function authFetch(url, options = {}) {
   });
 }
 
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── 컬럼 표시 설정 ────────────────────────────────────
+
+async function loadSettings() {
+  const res  = await authFetch('/api/admin/settings');
+  const data = await res.json();
+  renderToggles(data.visibleColumns || []);
+}
+
+function renderToggles(visibleColumns) {
+  const container = document.getElementById('columnToggles');
+  if (!container) return;
+  container.innerHTML = COL_DEFS.map(({ key, label }) => `
+    <label class="col-toggle-label">
+      <input type="checkbox" value="${key}" ${visibleColumns.includes(key) ? 'checked' : ''}>
+      ${label}
+    </label>
+  `).join('');
+}
+
+document.getElementById('saveSettingsBtn')?.addEventListener('click', async () => {
+  const checkboxes = document.querySelectorAll('#columnToggles input[type="checkbox"]');
+  const visibleColumns = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+  const res  = await authFetch('/api/admin/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visibleColumns })
+  });
+  const data = await res.json();
+  showSettingsMsg(data.ok ? '저장되었습니다.' : (data.error || '오류'), data.ok);
+});
+
+function showSettingsMsg(text, ok) {
+  const el = document.getElementById('settingsMsg');
+  if (!el) return;
+  el.textContent = text;
+  el.className = ok ? 'ok' : 'err';
+  setTimeout(() => { el.textContent = ''; el.className = ''; }, 3000);
+}
+
 // ── 대기 목록 ─────────────────────────────────────────
 
 async function loadPending() {
@@ -39,23 +94,21 @@ async function loadPending() {
     return;
   }
 
-  pendingList.innerHTML = list.map(p => `
-    <div class="pending-card" data-uid="${p.uid}">
-      <div class="num-badge">${p.number}번</div>
+  pendingList.innerHTML = list.map(p => {
+    const typeDef = p.type ? COL_DEFS.find(d => d.key === p.type) : null;
+    return `
+    <div class="pending-card" data-uid="${p.uid}" data-has-image="${p.image ? '1' : ''}">
+      <div class="num-badge">
+        ${p.number}번
+        ${typeDef ? `<span class="submitted-type-badge">${typeDef.label}</span>` : ''}
+      </div>
       <div class="edit-area">
         <div class="hint-fields">
-          <label class="hint-field-label">1일차 힌트
-            <input type="text" name="day"    value="${escHtml(p.day    || '')}" placeholder="—" maxlength="300">
-          </label>
-          <label class="hint-field-label">2일차 힌트
-            <input type="text" name="day2"   value="${escHtml(p.day2   || '')}" placeholder="—" maxlength="300">
-          </label>
-          <label class="hint-field-label">친구 초대 힌트
-            <input type="text" name="invite" value="${escHtml(p.invite || '')}" placeholder="—" maxlength="300">
-          </label>
-          <label class="hint-field-label">견적 분석 힌트
-            <input type="text" name="quote"  value="${escHtml(p.quote  || '')}" placeholder="—" maxlength="300">
-          </label>
+          ${COL_DEFS.map(({ key, label }) => `
+            <label class="hint-field-label">${label}
+              <input type="text" name="${key}" value="${escHtml(p[key] || '')}" placeholder="—" maxlength="300">
+            </label>
+          `).join('')}
         </div>
         <div class="pending-meta">제출: ${p.submitted_at}</div>
       </div>
@@ -65,29 +118,30 @@ async function loadPending() {
         <button class="reject-btn">거절</button>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   pendingList.querySelectorAll('.pending-card').forEach(card => {
-    const uid = Number(card.dataset.uid);
+    const uid      = Number(card.dataset.uid);
+    const hasImage = !!card.dataset.hasImage;
     card.querySelector('.approve-btn').addEventListener('click', () => {
-      const day    = card.querySelector('input[name="day"]').value;
-      const day2   = card.querySelector('input[name="day2"]').value;
-      const invite = card.querySelector('input[name="invite"]').value;
-      const quote  = card.querySelector('input[name="quote"]').value;
-      approve(uid, day, day2, invite, quote);
+      const fields = {};
+      COL_DEFS.forEach(({ key }) => {
+        fields[key] = card.querySelector(`input[name="${key}"]`).value;
+      });
+      approve(uid, fields, hasImage);
     });
     card.querySelector('.reject-btn').addEventListener('click', () => reject(uid));
   });
 }
 
-async function approve(uid, day, day2, invite, quote) {
-  if (!day.trim() && !day2.trim() && !invite.trim() && !quote.trim()) {
-    alert('힌트 내용을 하나 이상 입력해주세요.'); return;
-  }
+async function approve(uid, fields, hasImage) {
+  const anyFilled = Object.values(fields).some(v => v.trim());
+  if (!anyFilled && !hasImage) { alert('힌트 내용을 입력하거나 이미지가 있어야 합니다.'); return; }
   await authFetch('/api/admin/approve', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uid, day, day2, invite, quote })
+    body: JSON.stringify({ uid, ...fields })
   });
   loadPending();
   loadPublished();
@@ -101,16 +155,20 @@ async function reject(uid) {
 
 // ── 게시된 힌트 ───────────────────────────────────────
 
+function adminCell(text, imgSrc, type) {
+  const isEmpty = !text && !imgSrc;
+  const content = text ? escHtml(text) : (imgSrc ? '' : '—');
+  const imgHtml = imgSrc ? `<img class="hint-thumb" src="${escHtml(imgSrc)}" alt="이미지">` : '';
+  return `<td class="type-${type}${isEmpty ? ' empty' : ''}">${content}${imgHtml}</td>`;
+}
+
 async function loadPublished() {
-  const res  = await fetch('/api/hints');
+  const res  = await authFetch('/api/admin/published');
   const list = await res.json();
   publishedTbl.innerHTML = list.map(h => `
     <tr>
       <td>${h.id}</td>
-      <td class="type-day    ${h.day    ? '' : 'empty'}">${h.day    || '—'}</td>
-      <td class="type-day2   ${h.day2   ? '' : 'empty'}">${h.day2   || '—'}</td>
-      <td class="type-invite ${h.invite ? '' : 'empty'}">${h.invite || '—'}</td>
-      <td class="type-quote  ${h.quote  ? '' : 'empty'}">${h.quote  || '—'}</td>
+      ${COL_DEFS.map(({ key }) => adminCell(h[key] || '', h[`${key}_image`] || null, key)).join('')}
       <td class="col-date">${h.updated_at || ''}</td>
     </tr>
   `).join('');
@@ -152,20 +210,31 @@ function showEditMsg(text, ok) {
   setTimeout(() => { editMsg.textContent = ''; editMsg.className = ''; }, 3000);
 }
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ── 이미지 오버레이 ───────────────────────────────────
 
-// 이미지 클릭 확대
 const overlay    = document.getElementById('imgOverlay');
 const overlayImg = document.getElementById('overlayImg');
+
+function openOverlay(src) {
+  overlayImg.src = src;
+  overlay.classList.add('show');
+  history.pushState({ overlay: true }, '');
+}
+
 document.addEventListener('click', e => {
-  if (e.target.classList.contains('pending-img')) {
-    overlayImg.src = e.target.src;
-    overlay.classList.add('show');
-  }
+  const thumb = e.target.closest('.hint-thumb');
+  if (thumb) { openOverlay(thumb.src); return; }
+  if (e.target.classList.contains('pending-img')) { openOverlay(e.target.src); return; }
 });
-overlay.addEventListener('click', () => overlay.classList.remove('show'));
+
+overlay.addEventListener('click', () => {
+  overlay.classList.remove('show');
+  history.back();
+});
+
+window.addEventListener('popstate', () => {
+  if (overlay.classList.contains('show')) overlay.classList.remove('show');
+});
 
 // SSE 실시간 연결
 function connectSSE() {
@@ -236,6 +305,7 @@ async function loadInquiries() {
   });
 }
 
+loadSettings();
 loadPending();
 loadPublished();
 loadInquiries();
